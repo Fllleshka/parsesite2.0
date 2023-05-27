@@ -26,7 +26,6 @@ def switcher(time, data):
             # Выводим данные в лог
             dddates.printidates()
 
-
         # Время для планирования постов
         case times.planpostingdates:
             print("Время для планирования постинга новостей с сайта: ", times.planpostingdates)
