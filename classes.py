@@ -1,6 +1,6 @@
 # Импорт библиотек
 import datetime
-import pprint
+import math
 
 import requests
 from bs4 import BeautifulSoup
@@ -21,17 +21,17 @@ class FullDates:
 
     # Функция печати данных
     def printidates(self):
-        print("=Start===Class FullDates==========")
-        print("===========ExportUrls=============")
+        print("\t=Start===Class FullDates==========")
+        print("\t===========ExportUrls=============")
         for element in self.exporturls:
-            print("\t" + element)
-        print("=========TimeWithPosts===========")
+            print("\t\t" + element)
+        print("\t=========TimeWithPosts===========")
         for element in self.timewithposts:
-            print("\t" + element)
-        print("==========ImportUrls=============")
+            print("\t\t" + element)
+        print("\t==========ImportUrls=============")
         for element in self.importurls:
-            print("\t" + element)
-        print("=End=====Class FullDates==========")
+            print("\t\t" + element)
+        print("\t=End=====Class FullDates=========")
 
     # Функция импорта данных
     def importurlsfrompage(self):
@@ -83,16 +83,37 @@ class FullDates:
             #print(f"\t\t{date_post}")
             # Если дата поста совпадает с сегодняшней датой, то
             #if date_post == today:
-            if date_post == "24 мая 2023":
+            if date_post == "6 июня 2023":
                 # Формируем итоговый массив с ссылками
                 result.append(str(pathlist[i]))
             i = i + 1
         # Записываем результат в лист экспортированных url
         self.exporturls = result
 
+    # Функция открытия статьи и импорта названия
+    def insertnamepage(self, url):
+        page = requests.get(url, headers=headers)
+        # Разбираем страницу с помощью BeautifulSoup
+        html = BeautifulSoup(page.content, 'html.parser')
+        postdates = html.select("title")
+        title = str(postdates)[8:-23]
+        return title
+
     # Функция планирования постанга новостей
-    def planpostingdates(self):
-        print("123")
+    def planpostingdates(self, starttime, endtime):
+        # Расчитываем время ожидания (для формирования времени следующего поста)
+        delta = int(endtime) - int(starttime)
+        nextstep = math.floor(delta / len(self.exporturls))
+        # Создаём массив названий статей
+        mass = []
+        timetopost = int(starttime)
+        for element in self.exporturls:
+            namepage = self.insertnamepage(element)
+            #mass.append([timetopost, element, namepage])
+            self.timewithposts.append(str(timetopost))
+            self.timewithposts.append(element)
+            self.timewithposts.append(namepage)
+            timetopost += nextstep
 
 # Класс времён
 class times:
@@ -105,7 +126,7 @@ class times:
     #planpostingdates = datetime.time(23, 58).strftime("%H:%M")
     planpostingdates = (datetime.datetime.today() + datetime.timedelta(minutes=1)).strftime("%H:%M")
     # Время начала постинга
-    starttimeposting = datetime.time(8,00).strftime("%H")
+    starttimeposting = datetime.time(9,00).strftime("%H")
     # Время конца постинга
     endtimeposting = datetime.time(23, 00).strftime("%H")
 
@@ -114,5 +135,7 @@ class times:
     timetopost = (datetime.datetime.today() + datetime.timedelta(minutes=3)).strftime("%H:%M")
 
     # Время обнуления переменных
-    nulltime = datetime.time(23, 0).strftime("%H:%M")
+    #nulltime = datetime.time(23, 0).strftime("%H:%M")
+    nulltime = (datetime.datetime.today() + datetime.timedelta(minutes=5)).strftime("%H:%M")
+
     #nulltime = (datetime.datetime.today() + datetime.timedelta(minutes=1)).strftime("%H:%M")

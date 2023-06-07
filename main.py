@@ -29,7 +29,6 @@ def switcher(time, data):
         # Время для планирования постов
         case times.planpostingdates:
             print("Время для планирования постинга новостей с сайта: ", times.planpostingdates)
-            data.printidates()
             if len(data.exporturls) == 0:
                 print("\tМассив экспортированных новостей пуст")
             else:
