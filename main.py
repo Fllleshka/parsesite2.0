@@ -22,7 +22,11 @@ def switcher(time, data):
             print("Время для импортирования новостей с сайта: ", times.importtime)
             # Импорт urls для создания статей с новостями
             data.importurlsfrompage()
-
+            # Цикл создания новостей
+            for element in data.importurls:
+                # Создаём экземпляр новости и работаем с ней
+                newnews = News(element)
+                data.exporturls.append(newnews.resulturl)
             # Выводим данные в лог
             dddates.printidates()
 
@@ -34,7 +38,7 @@ def switcher(time, data):
             else:
                 print("\tМассив экспортированных новостей не пуст")
                 # Запускаем функцию формирования результирующего списка ссылок для публикации
-                times.timetopost = data.planpostingdates(times.starttimeposting, times.endtimeposting)
+                data.planpostingdates(times.starttimeposting, times.endtimeposting)
                 # Выводим данные в лог
                 dddates.printidates()
 
@@ -49,7 +53,6 @@ dddates = FullDates()
 
 # Вечный бесконечный цикл
 while True:
-
     try:
         # Время сейчас
         today = datetime.datetime.today()
