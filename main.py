@@ -15,7 +15,7 @@ def switcher(time, data):
             data.timewithposts = []
             data.importurls = []
             # Выводим данные в лог
-            dddates.printidates()
+            data.printidates()
 
         # Время для импортирования новостей с сайта
         case times.importtime:
@@ -28,7 +28,7 @@ def switcher(time, data):
                 newnews = News(element)
                 data.exporturls.append(newnews.resulturl)
             # Выводим данные в лог
-            dddates.printidates()
+            data.printidates()
 
         # Время для планирования постов
         case times.planpostingdates:
@@ -40,7 +40,12 @@ def switcher(time, data):
                 # Запускаем функцию формирования результирующего списка ссылок для публикации
                 data.planpostingdates(times.starttimeposting, times.endtimeposting)
                 # Выводим данные в лог
-                dddates.printidates()
+                data.printidates()
+
+        # Время для постанга новости
+        case times.timetopost:
+            print("Время для постинга новости: ", times.timetopost)
+            data.postinchannel()
 
         # Время для вывода времени
         case _:

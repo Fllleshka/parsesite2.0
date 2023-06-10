@@ -4,10 +4,11 @@ import math
 import shutil
 import requests
 import os
+import telebot
 from telegraph import Telegraph
 from bs4 import BeautifulSoup
 
-# Импорт данных по сайту
+# Импорт данных по сайту, боту
 from dates import *
 
 # Класс общих данных
@@ -47,12 +48,11 @@ class FullDates:
         year = today.strftime("%Y")
         today = str(intday) + " " + months[int(month) - 1] + " " + year
 
-        # Получем данные со страницы
+        # Получаем данные со страницы
         try:
            page = requests.get(urlpage, headers=headers, timeout=5)
         except requests.exceptions.HTTPError as error:
             print(error)
-        #print(f"\t{page}")
 
         # Разбираем страницу с помощью BeautifulSoup
         html = BeautifulSoup(page.content, 'html.parser')
@@ -81,8 +81,7 @@ class FullDates:
             # Обрезаем дату поста новости, для сравнения с текущей датой
             date_post = str(element.text)[:-8]
             # Если дата поста совпадает с сегодняшней датой, то
-            #if date_post == today:
-            if date_post == "6 июня 2023":
+            if date_post == today:
                 # Формируем итоговый массив с ссылками
                 result.append(str(pathlist[i]))
             i = i + 1
@@ -95,7 +94,7 @@ class FullDates:
         # Разбираем страницу с помощью BeautifulSoup
         html = BeautifulSoup(page.content, 'html.parser')
         postdates = html.select("title")
-        title = str(postdates)[8:-23]
+        title = str(postdates)[8:-21]
         return title
 
     # Функция планирования постанга новостей
@@ -108,8 +107,31 @@ class FullDates:
         timetopost = int(starttime)
         for element in self.exporturls:
             namepage = self.insertnamepage(element)
-            self.timewithposts.append(str([timetopost, element, namepage]))
+            self.timewithposts.append(str(timetopost))
+            self.timewithposts.append(str(element))
+            self.timewithposts.append(str(namepage))
+            #self.timewithposts.append(str([timetopost, element, namepage]))
             timetopost += nextstep
+
+    # Функция постинга новости
+    def postinchannel(self):
+        # Токен для связи с ботом
+        bot = telebot.TeleBot(botkey)
+        # Выбираем данные для отправки публикации новости в канал
+        mass = [self.timewithposts[0], self.timewithposts[1], self.timewithposts[2]]
+        # Удаляем ненужные данные из списка
+        for element in range(0, 3):
+            self.timewithposts.pop(0)
+        # Генерируем новое время публикации
+        times.timetopost = datetime.time(int(mass[0]), 00).strftime("%H:%M")
+        print("Время для постинга следующей новости: ", times.timetopost)
+        # Формируем сообщение для отправки
+        print(f"{type(mass[2])} {mass[2]}")
+        print(f"{type(mass[1])} {mass[1]}")
+        message = "[" + str(mass[2]) + "](" + str(mass[1]) + ")"
+        print(message)
+        status = bot.send_message(channel_id, message, parse_mode='MarkdownV2')
+        print(f"Публикация: {mass[2]}\nЗавершилась со статусом: {status}")
 
 # Класс новости
 class News:
@@ -281,23 +303,21 @@ class News:
 class times:
 
     # Время импорта новостей
-    importtime = datetime.datetime.today().strftime("%H:%M")
-    #importtime = datetime.time(23, 55).strftime("%H:%M")
+    #importtime = datetime.datetime.today().strftime("%H:%M")
+    importtime = datetime.time(23, 50).strftime("%H:%M")
 
     # Время подготовки плана постинга
-    #planpostingdates = datetime.time(23, 58).strftime("%H:%M")
-    planpostingdates = (datetime.datetime.today() + datetime.timedelta(minutes=3)).strftime("%H:%M")
+    planpostingdates = datetime.time(23, 54).strftime("%H:%M")
+    #planpostingdates = (datetime.datetime.today() + datetime.timedelta(minutes=2)).strftime("%H:%M")
     # Время начала постинга
     starttimeposting = datetime.time(9,00).strftime("%H")
     # Время конца постинга
     endtimeposting = datetime.time(23, 00).strftime("%H")
 
     # Время первого поста
-    #timetopost = datetime.time(8, 00).strftime("%H:%M")
+    timetopost = datetime.time(9, 00).strftime("%H:%M")
     #timetopost = (datetime.datetime.today() + datetime.timedelta(minutes=3)).strftime("%H:%M")
 
     # Время обнуления переменных
-    #nulltime = datetime.time(23, 0).strftime("%H:%M")
-    nulltime = (datetime.datetime.today() + datetime.timedelta(minutes=5)).strftime("%H:%M")
-
-    #nulltime = (datetime.datetime.today() + datetime.timedelta(minutes=1)).strftime("%H:%M")
+    nulltime = datetime.time(23, 30).strftime("%H:%M")
+    #nulltime = (datetime.datetime.today() + datetime.timedelta(minutes=10)).strftime("%H:%M")
